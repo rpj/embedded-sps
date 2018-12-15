@@ -11,11 +11,13 @@ sps_binaries := sps30_example_usage_sw_i2c sps30_example_usage_hw_i2c
 
 sw_objects := sensirion_sw_i2c.o sensirion_sw_i2c_implementation.o
 hw_objects := sensirion_hw_i2c_implementation.o
-all_objects := ${sensirion_common_objects} ${sps_common_objects} ${hw_objects} ${sw_objects} sps30.o
+all_objects := ${sensirion_common_objects} ${sps_common_objects} ${hw_objects} ${sw_objects} sps30.o libsps30.so
 
 .PHONY: all
 
-all: ${sps_binaries}
+all: ${sps_binaries} lib
+
+lib: libsps30.so
 
 sps_git_version.o: ${sps_common_dir}/sps_git_version.c
 	$(CC) $(CFLAGS) -c -o $@ $^
@@ -37,6 +39,8 @@ sps30_example_usage_sw_i2c: ${sensirion_common_objects} ${sps_common_objects} ${
 sps30_example_usage_hw_i2c: ${sensirion_common_objects} ${sps_common_objects} ${hw_objects} sps30.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LOADLIBES) $(LDLIBS) sps30_example_usage.c
 
+libsps30.so: ${sensirion_common_objects} ${sps_common_objects} ${hw_objects} sps30.o
+	$(CC) $(CFLAGS) -shared -Wl,-soname,libsps30.so -o libsps30.so ${sensirion_common_objects} ${sps_common_objects} ${hw_objects} sps30.o
 
 clean:
 	$(RM) ${all_objects} ${sps_binaries}
